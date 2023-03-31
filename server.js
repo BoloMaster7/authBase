@@ -11,9 +11,9 @@ const app = express();
 
 // configure passport provider options
 passport.use(new GoogleStrategy({
-    clientID: '892977313621-b9i4sdu0g29b1trq2uqdbaj04ksu0ort.apps.googleusercontent.com',
-    clientSecret: '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',
-    callbackURL: 'http://localhost:8000/auth/callback'
+  clientID: '892977313621-b9i4sdu0g29b1trq2uqdbaj04ksu0ort.apps.googleusercontent.com',
+  clientSecret: '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',
+  callbackURL: 'http://localhost:8000/auth/callback'
 }, (accessToken, refreshToken, profile, done) => {
   done(null, profile);
 }));
@@ -28,6 +28,17 @@ passport.deserializeUser((obj, deserialize) => {
   deserialize(null, obj);
 });
 
+app.use(session({ secret: 'anything' }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['email', 'profile'] }));
+
+app.get('/auth/google/callback', (req, res) => {
+  res.send(`I'm back from Google!`);
+});
+
 app.engine('hbs', hbs({ extname: 'hbs', layoutsDir: './layouts', defaultLayout: 'main' }));
 app.set('view engine', '.hbs');
 
@@ -35,10 +46,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '/public')));
-
-app.use(session({ secret: 'anything' }));
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -51,9 +58,6 @@ app.get('/user/logged', (req, res) => {
 app.get('/user/no-permission', (req, res) => {
   res.render('noPermission');
 });
-
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['email', 'profile'] }));
 
 app.use('/', (req, res) => {
   res.status(404).render('notFound');
