@@ -5,7 +5,7 @@ const hbs = require('express-handlebars');
 const passport = require('passport');
 const session = require('express-session');
 const passportSetup = require('./config/passport');
-require("dotenv").config()
+require('dotenv').config()
 
 const app = express();
 
